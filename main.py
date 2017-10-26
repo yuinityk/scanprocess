@@ -26,7 +26,7 @@ def transform_by4(img,points):
 
 
 def main():
-    read = cv2.imread('test.jpg',1)
+    read = cv2.imread('test.png',1)
     h, w, ch = read.shape
     
     # create margin
@@ -34,22 +34,19 @@ def main():
     img[10:10+h,10:10+w] = read
 
     # thresholding
-    thresh = 127
-    img_gray = cv2.imread('test.jpg',0)
-    th = np.zeros((h+20,w+20),dtype=np.uint8) #np.uint8じゃないとエラー吐く
+    thresh = 200
+    img_gray = cv2.imread('test.png',0)
+    th = np.zeros((h+20,w+20),dtype=np.uint8) #should be np.uint8 to avoid error
     th[10:10+h,10:10+w] = img_gray
-    ret, th2 = cv2.threshold(th,127,255,cv2.THRESH_BINARY)
+    ret, th2 = cv2.threshold(th,thresh,255,cv2.THRESH_BINARY)
+    cv2.imwrite('th2.png',th2)
 
     # get paper area
-    contours, hierarchy = cv2.findContours(th,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    maxarea = 0
-    for c in contours:
-        if cv2.contourArea(c) > maxarea:
-            maxc = c
-            maxarea = cv2.contourArea(c)
-    cv2.drawContours(img,maxc,-1,(0,0,255),4)
+    contours, hierarchy = cv2.findContours(th2,cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    sortedContours = sorted(contours,key=cv2.contourArea,reverse=True)
+    cv2.drawContours(img,sortedContours,0,(0,0,255),10)
 
-    cv2.imwrite('output.jpg',img)
+    cv2.imwrite('output.png',img)
 
 
 if __name__ == '__main__':
