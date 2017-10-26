@@ -9,7 +9,7 @@ def transform_by4(img,points):
     points = sorted(points, key=lambda x:x[1])
     top = sorted(points[:2], key=lambda x:x[0])
     bottom = sorted(points[2:], key=lambda x:x[0], reverse=True)
-    points = numpy.array(top+bottom, dtype='float32')
+    points = np.array(top+bottom, dtype='float32')
 
     width = max(np.sqrt(((points[0][0]-points[2][0])**2)*2), np.sqrt(((points[1][0]-points[3][0])**2)*2))
     height = max(np.sqrt(((points[0][1]-points[2][1])**2)*2), np.sqrt(((points[1][1]-points[3][1])**2)*2))
@@ -43,9 +43,12 @@ def main():
 
     # get paper area
     contours, hierarchy = cv2.findContours(th2,cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    sortedContours = sorted(contours,key=cv2.contourArea,reverse=True)
-    cv2.drawContours(img,sortedContours,0,(0,0,255),10)
-
+    paperContour = sorted(contours,key=cv2.contourArea,reverse=True)[0]
+    epsilon = 0.1*cv2.arcLength(paperContour,True)
+    approx = cv2.approxPolyDP(paperContour,epsilon,True)
+    cv2.drawContours(img,approx,-1,(0,0,255),10)
+    warped = transform_by4(img, approx[:,0,:])
+    cv2.imwrite('warp.png',warped)
     cv2.imwrite('output.png',img)
 
 
