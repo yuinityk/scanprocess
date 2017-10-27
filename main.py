@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2
 
@@ -20,13 +21,20 @@ def transform_by4(img,points):
         np.array([width-1,height-1]),
         np.array([0,height-1]),
         ], np.float32)
-
     trans = cv2.getPerspectiveTransform(points,dst)
     return cv2.warpPerspective(img, trans, (int(width), int(height)))
 
 
-def main():
-    read = cv2.imread('test.png',1)
+def trans(path,fn,ind,digit):
+    '''
+    input:
+        path  : String , where to save converted images which ends with '/'
+        fn    : Integer, number which corresponds to the input filename
+        ind   : Integer, number which corresponds t0 the output filename
+        digit : Integer, digit of ind in the output filename
+    '''
+    inputpath = '/media/cookie/5C73-1BFD/DCIM/100MEDIA/IMAG{0:04d}.jpg'.format(fn)
+    read = cv2.imread(inputpath,1)
     h, w, ch = read.shape
     
     # create margin
@@ -35,22 +43,27 @@ def main():
 
     # thresholding
     thresh = 200
-    img_gray = cv2.imread('test.png',0)
+    img_gray = cv2.imread(inputpath,0)
     th = np.zeros((h+20,w+20),dtype=np.uint8) #should be np.uint8 to avoid error
     th[10:10+h,10:10+w] = img_gray
     ret, th2 = cv2.threshold(th,thresh,255,cv2.THRESH_BINARY)
-    cv2.imwrite('th2.png',th2)
 
     # get paper area
     contours, hierarchy = cv2.findContours(th2,cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     paperContour = sorted(contours,key=cv2.contourArea,reverse=True)[0]
     epsilon = 0.1*cv2.arcLength(paperContour,True)
     approx = cv2.approxPolyDP(paperContour,epsilon,True)
-    cv2.drawContours(img,approx,-1,(0,0,255),10)
     warped = transform_by4(img, approx[:,0,:])
-    cv2.imwrite('warp.png',warped)
-    cv2.imwrite('output.png',img)
-
+    cv2.imwrite(path+str(ind).zfill(digit)+'.jpg',warped)
 
 if __name__ == '__main__':
-    main()
+    fn = int(raw_input('Input the index of the first input image: '))
+    num = int(raw_input('How many images to convert?: '))
+    if 0 < num < 10:
+        digit = 1
+    elif num < 100:
+        digit = 2
+    else:
+        digit = 3
+    for i in range(num):
+        trans('image/',fn+i,i+1,digit)
