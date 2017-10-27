@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import cv2
 
@@ -57,6 +58,22 @@ def trans(path,fn,ind,digit):
     cv2.imwrite(path+str(ind).zfill(digit)+'.jpg',warped)
 
 if __name__ == '__main__':
+    if os.path.exists('image'):
+        while 1:
+            m = raw_input('It\'ll delete the images already existing in the image folder.OK? [y/n]') 
+            if m=='y':
+                for root, dirs, files in os.walk('image/',topdown=False):
+                    for name in files:
+                        os.remove(os.path.join(root,name))
+                break
+            elif m=='n':
+                print('Move those files anywhere else.')
+                raw_input('press any key...')
+                sys.exit()
+            else:
+                print('Enter \'y\' or \'n\'.')
+    else:
+        os.mkdir('image')
     fn = int(raw_input('Input the index of the first input image: '))
     num = int(raw_input('How many images to convert?: '))
     if 0 < num < 10:
