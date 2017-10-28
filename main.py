@@ -34,7 +34,8 @@ def trans(path,fn,ind,digit):
         ind   : Integer, number which corresponds t0 the output filename
         digit : Integer, digit of ind in the output filename
     '''
-    inputpath = '/media/cookie/5C73-1BFD/DCIM/100MEDIA/IMAG{0:04d}.jpg'.format(fn)
+    dirpath = '/media/cookie/5C73-1BFD/DCIM/100MEDIA/'
+    inputpath = dirpath + 'IMAG{0:04d}.jpg'.format(fn)
     read = cv2.imread(inputpath,1)
     h, w, ch = read.shape
     
@@ -74,13 +75,19 @@ if __name__ == '__main__':
                 print('Enter \'y\' or \'n\'.')
     else:
         os.mkdir('image')
-    fn = int(raw_input('Input the index of the first input image: '))
-    num = int(raw_input('How many images to convert?: '))
+    dirpath = '/media/cookie/5C73-1BFD/DCIM/100MEDIA/'
+    files = os.listdir(dirpath)
+    num = len(files)
     if 0 < num < 10:
         digit = 1
     elif num < 100:
         digit = 2
     else:
         digit = 3
-    for i in range(num):
-        trans('image/',fn+i,i+1,digit)
+    count = 1
+    al = 1
+    while count < num+1:
+        if os.path.exists(dirpath+'IMAG{0:04d}.jpg'.format(al)):
+            trans('image/',al,count,digit)
+            count += 1
+        al += 1
