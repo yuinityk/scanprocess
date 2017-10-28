@@ -46,8 +46,16 @@ if __name__ == '__main__':
 
     if os.path.exists('image'):
         files = os.listdir('image')
+        num = len(files)
+        if 0<num<10:
+            digit = 1
+        elif num < 100:
+            digit = 2
+        else:
+            digit = 3
+
         for i in range(len(files)):
-            drawImage(c, options.size, 'image/'+files[i])
+            drawImage(c, options.size, 'image/'+str(i+1).zfill(digit)+'.jpg')
             c.showPage()
 
     c.save()
